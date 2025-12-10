@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Preview Bab — Novel (font & ukuran teks)</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Roboto:wght@300;400;500;700&family=Poppins:wght@300;400;600;700&family=Merriweather:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;600&family=Noto+Serif:wght@400;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ---------- Variabel ukuran (px) ---------- */
+    :root{
+      --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --primary: #0b74de;
+
+      /* Ukuran dasar (px) */
+      --fs-body: 16px;       /* isi chapter */
+      --fs-h1: 20px;         /* judul chapter */
+      --fs-meta: 13px;       /* metadata */
+      --fs-quote: 15px;      /* kutipan */
+      --fs-btn: 14px;        /* tombol */
+      --fs-small: 12px;      /* teks kecil footer */
+      --cover-w: 96px;
+      --cover-h: 128px;
+    }
+
+    /* ---------- Reset & layout ---------- */
+    html,body { height:100%; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      margin: 0;
+      padding: 20px;
+      color: #111;
+      font-size: var(--fs-body);
+      line-height: 1.6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container { max-width:720px; margin:0 auto; }
+
+    /* ---------- Topbar ---------- */
+    .topbar { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .back-btn {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:8px; background:#fff;
+      box-shadow:0 1px 4px rgba(0,0,0,0.06); text-decoration:none; color:#111;
+      font-weight:600; font-size:14px;
+      border:1px solid #e6e7ea;
+    }
+    .controls-panel { margin-left:auto; display:flex; gap:8px; align-items:center; }
+
+    /* ---------- Card ---------- */
+    .read-card {
+      background: var(--card);
+      padding: 16px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(12,20,30,0.06);
+      overflow: hidden;
+    }
+    .meta { font-size: var(--fs-meta); color: var(--muted); margin-bottom: 6px; }
+    h1 { font-size: var(--fs-h1); margin: 6px 0; font-weight:700; }
+    .chapter-title { font-weight:600; color:#111; margin:6px 0 12px; display:block; }
+    blockquote {
+      margin: 0 0 12px;
+      border-left: 3px solid #eef2ff;
+      color: #333;
+      font-size: var(--fs-quote);
+      background: linear-gradient(90deg, rgba(14,165,233,0.03), transparent);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .controls { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; }
+    .btn { display:inline-block; padding:10px 14px; border-radius:8px; text-decoration:none; font-weight:600; font-size:var(--fs-btn); }
+    .btn.primary { background: var(--primary); color:#fff; }
+    .btn.ghost { background:#f3f4f6; color:#111; border:1px solid #e6e7ea;}
+    .btn.raw {display: none;}
+    .small { font-size: var(--fs-small); color:var(--muted); margin-top:10px; display:block; }
+
+    .cover { float: right; width: var(--cover-w); height: var(--cover-h); object-fit: cover; border-radius: 6px; margin-left: 12px; }
+
+    .loading { text-align:center; padding:28px 0; color:var(--muted); font-size: var(--fs-meta); }
+    .error { color:#b91c1c; padding:12px 0; font-size: var(--fs-meta); }
+
+    /* ---------- Reader modal ---------- */
+    .reader { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; padding:20px; z-index:9999; }
+    .reader .sheet { width:100%; max-width:760px; max-height:90vh; overflow:auto; background:#fff; border-radius:8px; padding:20px; }
+    .reader .close { float:right; background:#eee; border-radius:6px; padding:6px 10px; text-decoration:none; color:#111; font-size:13px; }
+    .chapter-content { white-space:pre-wrap; line-height:1.8; color:#111; font-size: var(--fs-body); }
+
+    /* ---------- Font selector & size controls ---------- */
+    .font-select { padding:8px 10px; border-radius:8px; border:1px solid #e6e7ea; background:#fff; font-size:13px; }
+    .size-controls { display:flex; gap:8px; align-items:center; }
+    .size-btn { padding:6px 8px; border-radius:6px; border:1px solid #e6e7ea; background:#fff; cursor:pointer; font-size:13px; }
+    .size-slider { width:160px; }
+    .preset-btn { padding:6px 8px; border-radius:6px; background:#f3f4f6; border:1px solid #e6e7ea; cursor:pointer; font-size:13px; }
+
+    @media (max-width:480px){
+      .cover{ display:none; }
+      .topbar { padding:0 4px; }
+      :root {
+        --fs-body: 15px;
+        --fs-h1: 18px;
+        --fs-quote: 14px;
+        --fs-btn: 14px;
+        --fs-meta: 12px;
+        --fs-small: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <a href="#" id="backBtn" class="back-btn" aria-label="Kembali ke halaman sebelumnya">← Kembali</a>
+
+      <div class="controls-panel" role="region" aria-label="Kontrol tampilan">
+        <!-- Font selector -->
+        <label for="fontSelect" style="font-size:13px;color:var(--muted);margin-right:6px;"></label>
+        <select id="fontSelect" class="font-select" aria-label="Pilih font">
+          <option value="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Inter</option>
+          <option value="Roboto, system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial">Roboto</option>
+          <option value="Poppins, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Poppins</option>
+          <option value="Merriweather, Georgia, 'Times New Roman', serif">Merriweather</option>
+          <option value="Playfair Display, Georgia, serif">Playfair Display</option>
+          <option value='"Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial'>Source Sans 3</option>
+          <option value="Noto Serif, Georgia, serif">Noto Serif</option>
+          <option value="Nunito, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Nunito</option>
+        </select>
+
+        <!-- Size controls -->
+        <div class="size-controls" style="margin-left:8px;">
+          <button id="decBtn" class="size-btn" aria-label="Perkecil teks">A-</button>
+          <input id="sizeSlider" class="size-slider" type="range" min="12" max="24" step="1" value="16" aria-label="Atur ukuran teks isi">
+          <button id="incBtn" class="size-btn" aria-label="Perbesar teks">A+</button>
+        </div>
+
+        <!-- Preset -->
+
+      </div>
+    </div>
+
+    <div id="app">
+      <div class="loading">Memuat data…</div>
+    </div>
+  </div>
+
+  <script>
+  /* ---------- Utility ---------- */
+  function qs(name, url = location.search) {
+    const params = new URLSearchParams(url);
+    return params.get(name);
+  }
+  function safeText(str) {
+    if (str === null || str === undefined) return '';
+    return String(str);
+  }
+  function excerpt(text, n = 420) {
+    if (!text) return '';
+    if (text.length <= n) return text;
+    const cut = text.slice(0, n);
+    const lastSpace = cut.lastIndexOf(' ');
+    return cut.slice(0, lastSpace > 0 ? lastSpace : n) + '…';
+  }
+  function isUrl(s) {
+    try { const u = new URL(s); return u.protocol === 'http:' || u.protocol === 'https:'; } catch(e){ return false; }
+  }
+
+  /* ---------- Config ---------- */
+  const DATA_URL = 'https://raw.githubusercontent.com/kyyou-ze/Data/main/Data.json';
+
+  /* ---------- DOM refs for controls ---------- */
+  const fontSelect = document.getElementById('fontSelect');
+  const sizeSlider = document.getElementById('sizeSlider');
+  const decBtn = document.getElementById('decBtn');
+  const incBtn = document.getElementById('incBtn');
+  const presetBtns = document.querySelectorAll('.preset-btn');
+
+  /* ---------- Apply & persist font ---------- */
+  function applyFont(value) {
+    document.documentElement.style.setProperty('--font-sans', value);
+    document.body.style.fontFamily = value;
+    localStorage.setItem('preferredFont', value);
+  }
+  const savedFont = localStorage.getItem('preferredFont');
+  if (savedFont) {
+    for (const opt of fontSelect.options) {
+      if (opt.value === savedFont) { fontSelect.value = savedFont; break; }
+    }
+    applyFont(savedFont);
+  } else {
+    applyFont(fontSelect.value);
+  }
+  fontSelect.addEventListener('change', function(){ applyFont(this.value); });
+
+  /* ---------- Apply & persist size (isi) ---------- */
+  // ukuran default 16px
+  function applySize(px) {
+    // set --fs-body and scale related sizes proportionally
+    const bodyPx = Number(px);
+    document.documentElement.style.setProperty('--fs-body', bodyPx + 'px');
+    // scale other sizes relative to body
+    document.documentElement.style.setProperty('--fs-h1', Math.round(bodyPx * 1.25) + 'px');
+    document.documentElement.style.setProperty('--fs-quote', Math.round(bodyPx * 0.95) + 'px');
+    document.documentElement.style.setProperty('--fs-btn', Math.round(bodyPx * 0.875) + 'px');
+    document.documentElement.style.setProperty('--fs-meta', Math.round(bodyPx * 0.8125) + 'px');
+    document.documentElement.style.setProperty('--fs-small', Math.round(bodyPx * 0.75) + 'px');
+
+    // update slider and store
+    sizeSlider.value = bodyPx;
+    localStorage.setItem('preferredSize', String(bodyPx));
+  }
+
+  // init from storage
+  const savedSize = parseInt(localStorage.getItem('preferredSize'), 10);
+  if (!isNaN(savedSize)) applySize(savedSize);
+  else applySize(Number(sizeSlider.value || 16));
+
+  // slider events
+  sizeSlider.addEventListener('input', function(){ applySize(this.value); });
+  decBtn.addEventListener('click', function(){ applySize(Math.max(12, Number(sizeSlider.value) - 1)); });
+  incBtn.addEventListener('click', function(){ applySize(Math.min(24, Number(sizeSlider.value) + 1)); });
+
+  // preset buttons
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', function(){
+      const s = Number(this.getAttribute('data-size'));
+      applySize(s);
+    });
+  });
+
+  /* ---------- Back button ---------- */
+  const backBtn = document.getElementById('backBtn');
+  backBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    if (window.history.length > 1) {
+      window.history.back();
+      setTimeout(() => {
+        if (location.search.indexOf('id=') !== -1) {
+          location.href = '/index.html';
+        }
+      }, 300);
+    } else {
+      location.href = '/index.html';
+    }
+  });
+
+  /* ---------- Main: fetch data and render ---------- */
+  (async function main(){
+    const app = document.getElementById('app');
+    const id = qs('id') || '1';
+    const chParam = qs('ch') || '0';
+    const chIndex = Math.max(0, parseInt(chParam, 10) || 0);
+
+    try {
+      const res = await fetch(DATA_URL, { cache: 'no-cache' });
+      if (!res.ok) throw new Error('Gagal mengambil data: ' + res.status);
+      const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        app.innerHTML = '<div class="error">Format data tidak sesuai (diharapkan array).</div>';
+        return;
+      }
+
+      const series = data.find(s => String(s.id) === String(id));
+      if (!series) {
+        app.innerHTML = '<div class="error">Series tidak ditemukan untuk id=' + safeText(id) + '.</div>';
+        return;
+      }
+
+      const chapters = Array.isArray(series.chapters) ? series.chapters : [];
+      if (chIndex < 0 || chIndex >= chapters.length) {
+        app.innerHTML = '<div class="error">Bab tidak ditemukan untuk ch=' + safeText(chIndex) + '.</div>';
+        return;
+      }
+
+      const chapter = chapters[chIndex];
+      const seriesTitle = series.title || 'Unknown Series';
+      const cover = series.img || '';
+      const chapterTitle = chapter.title || ('Chapter ' + (chIndex + 1));
+      const views = chapter.views || 0;
+
+      // Jika chapter.content adalah URL, fetch isi file raw
+      let rawContent = '';
+      if (chapter.content && isUrl(chapter.content)) {
+        try {
+          const r = await fetch(chapter.content, { cache: 'no-cache' });
+          if (!r.ok) throw new Error('Gagal mengambil file chapter: ' + r.status);
+          rawContent = await r.text();
+        } catch (err) {
+          rawContent = '[Gagal memuat isi chapter dari ' + chapter.content + ' — ' + err.message + ']';
+        }
+      } else {
+        rawContent = chapter.content || '';
+      }
+
+      // Render kartu preview
+      app.innerHTML = `
+        <article class="read-card" aria-label="Kartu bab novel">
+          <div style="overflow:hidden;">
+            ${ cover ? `<img class="cover" src="${encodeURI(cover)}" alt="Cover ${safeText(seriesTitle)}">` : '' }
+            <div style="overflow:hidden;">
+              <div class="meta"><strong>Series</strong> • <span>${safeText(seriesTitle)}</span></div>
+              <h1>${safeText(chapterTitle)}</h1>
+              <div class="meta">ID: <strong>${safeText(series.id)}</strong> • Views: <strong>${safeText(views)}</strong></div>
+            </div>
+          </div>
+
+          <blockquote aria-label="Cuplikan bab">${safeText(excerpt(rawContent, 420))}</blockquote>
+
+          <div class="controls" role="navigation" aria-label="Navigasi bab">
+            <a class="btn ghost" id="prevBtn" href="#" aria-label="Bab sebelumnya">‹ Bab Sebelumnya</a>
+            <a class="btn primary" id="readBtn" href="#" aria-label="Baca bab ini">Baca Penuh</a>
+            <a class="btn ghost" id="nextBtn" href="#" aria-label="Bab berikutnya">Bab Berikutnya ›</a>
+            <a class="btn raw" id="rawLink" href="#" aria-label="Buka file raw" style="margin-left:auto;">Buka Raw</a>
+          </div>
+
+          <span class="small">Estimasi waktu baca: ~12 menit • Gratis: Bab pembuka</span>
+        </article>
+      `;
+
+      // prev/next
+      const prevIndex = chIndex - 1;
+      const nextIndex = chIndex + 1;
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const readBtn = document.getElementById('readBtn');
+      const rawLink = document.getElementById('rawLink');
+
+      if (prevIndex >= 0) {
+        prevBtn.href = location.pathname + '?id=' + encodeURIComponent(series.id) + '&ch=' + encodeURIComponent(prevIndex);
+      } else {
+        prevBtn.href = '#';
+        prevBtn.setAttribute('aria-disabled', 'true');
+        prevBtn.style.opacity = '0.6';
+        prevBtn.onclick = (e) => e.preventDefault();
+      }
+
+      if (nextIndex < chapters.length) {
+        nextBtn.href = location.pathname + '?id=' + encodeURIComponent(series.id) + '&ch=' + encodeURIComponent(nextIndex);
+      } else {
+        nextBtn.href = '#';
+        nextBtn.setAttribute('aria-disabled', 'true');
+        nextBtn.style.opacity = '0.6';
+        nextBtn.onclick = (e) => e.preventDefault();
+      }
+
+      // raw link: buka file raw di tab baru jika content adalah URL
+      if (chapter.content && isUrl(chapter.content)) {
+        rawLink.href = chapter.content;
+        rawLink.target = '_blank';
+      } else {
+        rawLink.style.display = 'none';
+      }
+
+      // Reader modal: tampilkan rawContent sebagai plain text (aman)
+
+function openReader() {
+  const reader = document.createElement('div');
+  reader.className = 'reader';
+  reader.innerHTML = `
+    <div class="sheet" role="dialog" aria-label="Reader penuh">
+      <a href="#" class="close closeReader">Tutup</a>
+      <h2>${safeText(seriesTitle)} — ${safeText(chapterTitle)}</h2>
+      <div id="chapterBody" class="chapter-content" style="margin-top:12px;"></div>
+      <a href="#" class="close closeReader">Tutup</a>
+    </div>
+  `;
+  document.body.appendChild(reader);
+
+  // Tambahkan event listener ke semua tombol dengan class 'closeReader'
+  reader.querySelectorAll('.closeReader').forEach(btn => {
+    btn.onclick = function(e) {
+      e.preventDefault();
+      document.body.removeChild(reader);
+};
+});
+
+  const bodyEl = reader.querySelector('#chapterBody');
+  bodyEl.textContent = rawContent;
+  reader.addEventListener('click', (e) => {
+  if (e.target === reader) {
+    reader.classList.remove('show');
+    reader.classList.add('hide');
+    setTimeout(() => {
+      document.body.removeChild(reader);
+    }, 300);
+  }
+});
+}
+
+      readBtn.onclick = function(e){
+        e.preventDefault();
+        openReader();
+      };
+
+      // keyboard shortcut: Escape untuk kembali
+      document.addEventListener('keydown', function(ev){
+        if (ev.key === 'Escape') {
+          if (window.history.length > 1) window.history.back();
+          else location.href = '/index.html';
+        }
+      });
+
+    } catch (err) {
+      console.error(err);
+      app.innerHTML = '<div class="error">Terjadi kesalahan saat memuat data. ' + safeText(err.message) + '</div>';
+    }
+  })();
+  </script>
+</body>
+</html>

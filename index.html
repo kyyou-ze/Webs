@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LimeNovel</title>
+<link rel="stylesheet" href="Style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <nav class="navbar"><div class="left">
+    <div class="logo l">LimeNovel</div>
+    <div class="right">
+      <i class="fas fa-bars hamburger" onclick="toggleMenu()"></i>
+    </div>
+    </div>
+    <div class="sidebar" id="sidebar">
+      <a href="/">Beranda</a>
+      <div class="dropdown">
+  <a href="#">Genre ▼</a>
+  <div class="dropdown-content" id="genreDropdown">
+    <!-- genre akan diisi lewat JS -->
+  </div>
+</div>
+
+
+      <a href="/popular">Populer</a>
+      <a href="/new">Baru Dibuka</a>
+      <a href="/login">Login</a>
+      <div class="search-container">
+              <i class="fas fa-search search-icon" onclick="searchNovel()"></i>
+  <input type="text" id="searchInput" class="searchInput"placeholder="Cari novel..." />
+</div>
+<div id="searchResults"></div>
+    </div>
+  </nav>
+  
+  
+<div class="carousel">
+  <div class="track" id="carouselTrack">
+    <!-- slide akan diisi via JS -->
+  </div>
+</div>
+  
+  
+<script src="Main.js"></script>
+</body>
+</html>
+
